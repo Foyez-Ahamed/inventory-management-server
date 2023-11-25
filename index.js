@@ -29,6 +29,24 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
+    
+    // all collections //
+    const userCollections = client.db('kingGalleryDB').collection('users');
+    // all collections //
+
+    // curd operation //
+
+    // user related api //
+    app.post('/api/v1/createUser', async(req, res) => {
+        const user = req.body;
+        const result = await userCollections.insertOne(user);
+        res.send(result);
+    })
+    // user related api //
+
+    // curd operation //
+
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
