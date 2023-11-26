@@ -32,6 +32,7 @@ async function run() {
     
     // all collections //
     const userCollections = client.db('kingGalleryDB').collection('users');
+    const categoriesCollection = client.db('kingGalleryDB').collection('categories');
     // all collections //
 
     // curd operation //
@@ -43,6 +44,14 @@ async function run() {
         res.send(result);
     })
     // user related api //
+
+    // categories related api //
+    app.get('/api/v1/getCategories', async(req, res) => {
+      const categories = categoriesCollection.find();
+      const result = await categories.toArray();
+      res.send(result);
+    })
+    // categories related api //
 
     // curd operation //
 
