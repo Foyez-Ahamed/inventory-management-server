@@ -181,7 +181,7 @@ async function run() {
 
       const checkLimit = await shopCollections.findOne({_id: new ObjectId(products.shopId)})
 
-      if(checkLimit.productsCount < checkLimit.limit) {
+      if( checkLimit.limit > 0) {
         const result =  await productCollections.insertOne(products)
         res.send(result)
       } else {
@@ -225,6 +225,14 @@ async function run() {
       const result = await shopCollections.updateOne({_id: new ObjectId(shopId)}, updateDoc)
 
       res.send(result)
+    })
+
+    // get products // 
+    app.get('/api/v1/getProducts/:email', async(req, res) => {
+      const email = req.params.email
+      const query = { manager : email }
+      const result = await productCollections.find(query).toArray();
+      res.send(result);
     })
 
 
