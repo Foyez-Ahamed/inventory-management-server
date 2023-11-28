@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
@@ -39,6 +39,8 @@ async function run() {
     const reviewsCollection = client.db('kingGalleryDB').collection('reviews');
 
     const shopCollections = client.db('kingGalleryDB').collection('shops');
+
+    const productCollections = client.db('kingGalleryDB').collection('products');
     // all collections //
 
     // curd operation //
@@ -171,6 +173,61 @@ async function run() {
       res.send(result)
     })
     // shop get related api //
+
+    // product post related api //
+
+    app.post('/api/v1/createProduct', async(req, res) => {
+      const products = req.body
+
+      const checkLimit = await shopCollections.findOne({_id: new ObjectId(products.shopId)})
+
+      if(checkLimit.productsCount < checkLimit.limit) {
+        const result =  await productCollections.insertOne(products)
+        res.send(result)
+      } else {
+         return res.send({message : 'you have already cross your product added limit!', insertedId : null})
+      }
+    })
+
+    // decrease shop limit //
+
+    app.patch('/api/v1/changeLimit/:shopId', async(req, res) => {
+      const shopId = req.params.shopId
+      const checkLimit = await shopCollections.findOne({_id: new ObjectId(shopId)})
+
+      const newLimit = checkLimit.limit - 1
+
+      const updateDoc = {
+        $set : {
+          limit : newLimit
+        }
+      }
+
+      const result = await shopCollections.updateOne({_id: new ObjectId(shopId)}, updateDoc)
+
+      res.send(result)
+
+    })
+
+    // increase product limit //
+    app.patch('/api/v1/increaseProduct/:shopId', async(req, res) => {
+      const shopId = req.params.shopId
+      const checkLimit = await shopCollections.findOne({_id: new ObjectId(shopId)})
+
+      const increaseProduct = checkLimit.productsCount + 1
+
+      const updateDoc = {
+        $set : {
+          productsCount : increaseProduct
+        }
+      }
+
+      const result = await shopCollections.updateOne({_id: new ObjectId(shopId)}, updateDoc)
+
+      res.send(result)
+    })
+
+
 
     // curd operation //
 
