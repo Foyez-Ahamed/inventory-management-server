@@ -209,6 +209,25 @@ async function run() {
 
     })
 
+// increase limit // 
+    app.patch('/api/v1/increaseLimit/:shopId', async(req, res) => {
+      const shopId = req.params.shopId
+      const checkLimit = await shopCollections.findOne({_id: new ObjectId(shopId)})
+
+      const newLimit = checkLimit.limit + 1
+
+      const updateDoc = {
+        $set : {
+          limit : newLimit
+        }
+      }
+
+      const result = await shopCollections.updateOne({_id: new ObjectId(shopId)}, updateDoc)
+
+      res.send(result)
+
+    })
+
     // increase product limit //
     app.patch('/api/v1/increaseProduct/:shopId', async(req, res) => {
       const shopId = req.params.shopId
@@ -227,6 +246,24 @@ async function run() {
       res.send(result)
     })
 
+    // decrease // 
+    app.patch('/api/v1/decreaseProduct/:shopId', async(req, res) => {
+      const shopId = req.params.shopId
+      const checkLimit = await shopCollections.findOne({_id: new ObjectId(shopId)})
+
+      const decreaseProduct = checkLimit.productsCount - 1
+
+      const updateDoc = {
+        $set : {
+          productsCount : decreaseProduct
+        }
+      }
+
+      const result = await shopCollections.updateOne({_id: new ObjectId(shopId)}, updateDoc)
+
+      res.send(result)
+    })
+
     // get products // 
     app.get('/api/v1/getProducts/:email', async(req, res) => {
       const email = req.params.email
@@ -235,6 +272,41 @@ async function run() {
       res.send(result);
     })
 
+    app.get('/api/v1/getSingleProduct/:id', async(req, res) => {
+      const id = req.params.id
+      const query = {_id : new ObjectId(id)}
+      const result = await productCollections.findOne(query)
+      res.send(result)
+    })
+
+    app.patch('/api/v1/updateProduct/:id', async(req, res) => {
+      const product = req.body
+      const id = req.params.id
+      const filter = {_id : new ObjectId(id)}
+
+      const updateDoc = {
+        $set : {
+        productName : product.productName,
+        productImage : product.productImage,
+        productQuantity : product.productQuantity,
+        location : product.location,
+        productionCost : product.productionCost,
+        profitMargin : product.profitMargin,
+        discount : product.discount,
+        productDetails : product.productDetails
+        }
+      }
+
+      const result = await productCollections.updateOne(filter, updateDoc)
+      res.send(result)
+    })
+
+    app.delete('/api/v1/deleteProduct/:id', async(req, res) => {
+      const id = req.params.id;
+      const query = {_id : new ObjectId(id)};
+      const result = await productCollections.deleteOne(query);
+      res.send(result);
+    })
 
 
     // curd operation //
