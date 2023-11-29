@@ -43,6 +43,8 @@ async function run() {
     const productCollections = client.db('kingGalleryDB').collection('products');
 
     const cartCollections = client.db('kingGalleryDB').collection('carts');
+
+    const salesCollections = client.db('kingGalleryDB').collection('sales');
     // all collections //
 
     // curd operation //
@@ -316,6 +318,54 @@ async function run() {
       const cartInfo = req.body
       const result = await cartCollections.insertOne(cartInfo)
       res.send(result)
+    })
+
+    app.get('/api/v1/getCarts/:email', async(req, res) => {
+      const email = req.params.email
+      const query = { manager : email }
+      const result = await cartCollections.find(query).toArray();
+      res.send(result)
+    })
+
+    // sales related api // 
+
+    app.post('/api/v1/createSales', async(req, res) => {
+      const sales = req.body
+     
+      const query = {
+         _id : {
+          $in : sales?.cartIds?.map(id => new ObjectId(id))
+         }
+      }
+
+      const insertSalesResult = await salesCollections.insertOne(sales)
+
+      const deleteCartResult = await cartCollections.deleteMany(query)
+
+      res.send({insertSalesResult, deleteCartResult})
+
+    })
+
+    // update sales count // 
+    app.patch('/api/v1/increaseSalesCount/:id', async(req, res) => {
+      const id = req.params.id
+      const product = await productCollections.findOne({ _id : new ObjectId(id)})
+
+      const increaseSalesCount = product?.saleCount + 1
+      const decreaseQuantity = product?.productQuantity - 1
+
+      const updateDoc = {
+        $set : {
+          saleCount : increaseSalesCount,
+          productQuantity : decreaseQuantity
+        }
+      }
+
+      const result = await productCollections.updateOne({_id : new ObjectId(id)}, updateDoc)
+
+      res.send(result)
+
+
     })
     // curd operation //
 
