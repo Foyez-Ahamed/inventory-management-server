@@ -49,6 +49,26 @@ async function run() {
 
     // curd operation //
 
+    // jwt verifyToken  //
+
+    const verifyToken = (req, res, next) => {
+      if(!req.headers.authorization){
+        return res.status(401).send({message : 'unauthorized access'})
+      }
+      const token = req.headers.authorization.split(' ')[1];
+      jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+        if(err){
+          return res.status(401).send({message : 'unauthorized access'})
+        }
+        req.decoded = decoded;
+        next();
+      })
+    }
+
+    // jwt verifyToken  //
+
+
+
     // jwt related api //
     app.post('/api/v1/jwt', async(req, res) => {
       const user = req.body;
@@ -143,7 +163,7 @@ async function run() {
       if(user) {
         admin = user?.role === 'admin'
       }
-      res.send({admin});
+      res.send(admin);
     })
     // get user admin data //
 
@@ -163,7 +183,7 @@ async function run() {
       if(user) {
         manager = user?.role === 'manager'
       }
-      res.send({manager});
+      res.send(manager);
     })
     // get user manager data //
 
@@ -283,7 +303,7 @@ async function run() {
       res.send(result)
     })
 
-    app.patch('/api/v1/updateProduct/:id', async(req, res) => {
+    app.patch('/api/v1/updateProduct/:id', verifyToken, async(req, res) => {
       const product = req.body
       const id = req.params.id
       const filter = {_id : new ObjectId(id)}
@@ -305,7 +325,7 @@ async function run() {
       res.send(result)
     })
 
-    app.delete('/api/v1/deleteProduct/:id', async(req, res) => {
+    app.delete('/api/v1/deleteProduct/:id', verifyToken, async(req, res) => {
       const id = req.params.id;
       const query = {_id : new ObjectId(id)};
       const result = await productCollections.deleteOne(query);
@@ -366,6 +386,15 @@ async function run() {
       res.send(result)
 
 
+    })
+
+
+    // get sales data //
+    app.get('/api/v1/getSales/:email', async(req, res) => {
+      const email = req.params.email
+      const query = { manager : email }
+      const result = await salesCollections.find(query).sort({sellingDate: - 1}).toArray()
+      res.send(result)
     })
     // curd operation //
 
