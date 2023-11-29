@@ -41,6 +41,8 @@ async function run() {
     const shopCollections = client.db('kingGalleryDB').collection('shops');
 
     const productCollections = client.db('kingGalleryDB').collection('products');
+
+    const cartCollections = client.db('kingGalleryDB').collection('carts');
     // all collections //
 
     // curd operation //
@@ -181,7 +183,7 @@ async function run() {
 
       const checkLimit = await shopCollections.findOne({_id: new ObjectId(products.shopId)})
 
-      if( checkLimit.limit > 0) {
+      if( checkLimit.limit > 0 ) {
         const result =  await productCollections.insertOne(products)
         res.send(result)
       } else {
@@ -308,7 +310,13 @@ async function run() {
       res.send(result);
     })
 
-
+    
+    // cart elated api //
+    app.post('/api/v1/createCarts', async(req, res) => {
+      const cartInfo = req.body
+      const result = await cartCollections.insertOne(cartInfo)
+      res.send(result)
+    })
     // curd operation //
 
 
