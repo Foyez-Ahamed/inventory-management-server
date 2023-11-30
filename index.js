@@ -151,7 +151,7 @@ async function run() {
     });
 
     // updated user info //
-    app.patch("/api/v1/updateUserInfo/:email", verifyToken, verifyManager, async (req, res) => {
+    app.patch("/api/v1/updateUserInfo/:email", async (req, res) => {
       const updateUserInfo = req.body;
       const email = req.params.email;
       const filter = { email: email };
@@ -343,7 +343,7 @@ async function run() {
       res.send(result);
     });
 
-    app.get("/api/v1/getSingleProduct/:id", verifyToken, verifyManager, async (req, res) => {
+    app.get("/api/v1/getSingleProduct/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await productCollections.findOne(query);
