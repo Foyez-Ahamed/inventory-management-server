@@ -220,6 +220,12 @@ async function run() {
       const result = await userCollections.findOne(query);
       res.send(result);
     });
+
+    app.get('/api/v1/allUsers', verifyToken, async(req, res) => {
+      const users = userCollections.find()
+      const result = await users.toArray()
+      res.send(result)
+    })
     // shop get related api //
 
     // product post related api //
@@ -336,12 +342,19 @@ async function run() {
     });
 
     // get products //
-    app.get("/api/v1/getProducts/:email", verifyToken, verifyManager, async (req, res) => {
+    app.get("/api/v1/getProducts/:email", verifyToken, async (req, res) => {
       const email = req.params.email;
       const query = { manager: email };
       const result = await productCollections.find(query).toArray();
       res.send(result);
     });
+
+    // get all products // 
+    app.get('/api/v1/getAllProduct', verifyToken, async(req, res) => {
+      const products = productCollections.find();
+      const result = await products.toArray();
+      res.send(result);
+    })
 
     app.get("/api/v1/getSingleProduct/:id", async (req, res) => {
       const id = req.params.id;
@@ -448,7 +461,7 @@ async function run() {
     });
 
     // shop related api //
-    app.get("/api/v1/getShop", verifyToken, verifyAdmin, async (req, res) => {
+    app.get("/api/v1/getShop", verifyToken, async (req, res) => {
       const shops = shopCollections.find();
       const result = await shops.toArray();
       res.send(result);
